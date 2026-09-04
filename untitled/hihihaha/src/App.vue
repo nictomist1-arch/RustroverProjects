@@ -1,20 +1,17 @@
 <script setup lang="ts">
 
+import type {Message} from "./types/message.ts";
 // Импорт 2 функций из vue
 // onMounted - запускает код после появления компонентов
 import { onMounted, ref } from "vue";
 
 import Database from "@tauri-apps/plugin-sql";
 
-interface Message {
-  id: number;
-  author: string;
-  body: string;
-  created_at: string;
+import AppHeader from "./comporents/AppHeader.vue";
 
-}
+import MessageComposer from "./comporents/MessageComposer.vue";
 
-const draft = ref("");
+import MessageList from "./comporents/MessageList.vue";
 
 const messages = ref<Message[]>([]);
 
@@ -30,99 +27,43 @@ async  function loadMessages(){
   );
 }
 
-async  function sendMessage(){
-  const body = draft.value.trim();
+async  function sendMessage(body: string) {
+    if (!db) return;
 
-  if(!body) return;
-  if(!db) return;
-
-  await  db.execute(
-      "INSERT INTO messages (author, body) VALUES ($1, $2)",
-      ["Вы", body],
-  );
-
-  draft.value = "";
-
-  await loadMessages();
+    await db.execute(
+        "INSERT INTO messages (author, body) VALUES ($1, $2)",
+        ["Вы", body]
+    )
+  await loadMessages()
 }
+  // VUE выполнит код ниже когда интерфейс программы загрузится
+  onMounted(async ()=> {
+    try {
+      // Открываем бд
+      db = await Database.load("sqlite:messanger.db");
 
-// VUE выполнит код ниже когда интерфейс программы загрузится
-onMounted(async ()=>{
-  try{
-    // Открываем бд
-    db = await Database.load(sqlite:messenger.db);
+      await loadMessages();
 
-    await  loadMessages();
-
-    status.value = "История сохраняется локально";
-  }catch (error){
-    console.error(error);
-    status.value = "Ошибка подключения к базе";
-  }
-});
+      status.value = "История сохраняется локально";
+    } catch (error) {
+      console.error(error);
+      status.value = "Ошибка подключения к базе";
+    }
+  });
 
 </script>
 
 <template>
   <main class="App">
-    <header class="header">
-      <div>
-        <h1>Hihihaha</h1>
-
-        <p>{{status}}</p>
-      </div>
-
-      <span class="badge">
-        Локально
-      </span>
-    </header>
-
+  <AppHeader :status="status"/>
     <section class="chat">
       <div class="chat-info">
         <h2>Первый чат</h2>
 
         <p>ервый локальной мессенджер</p>
       </div>
-      <div class="messanger">
-        <!-- Данный див будет отображаться когда сообщений нет -->
-        <div
-            v-if="messages.length === 0"
-          class="empty"
-        >
-          <strong> Здесь пока пусто </strong>
-          <span> Напишите первое сообщение </span>
-        </div>
-        <!-- Vue создает article ля каждого сообщения из базы -->
-        <article
-          v-for="message in messages"
-          :key="message.id"
-          class="message"
-        >
-          <p>
-            {{message.body}}
-          </p>
-          <footer>
-            <span>
-              {{message.author}}
-            </span>
-            <span>
-              {{message.created_at}}
-            </span>
-          </footer>
-        </article>
-      </div>
-      <form
-        class="composer"
-        @submit.prevent="sendMessage"
-      >
-        <input
-          v-model="draft"
-          type="text"
-          placeholder="Ну пиши уже че нить"
-          autocapitalize="off"
-        />
-        <button type="submit">Отправить</button>
-      </form>
+      <MessageList :messages="messages"/>
+      <MessageComposer @send="sendMessage"/>
     </section>
   </main>
 </template>
@@ -159,34 +100,6 @@ onMounted(async ()=>{
   flex-direction: column;
 }
 
-.header{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 24px;
-  border-bottom: 1px solid #292c34;
-  background: #17191f;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.header p{
-  margin: 4px 0 0;
-  color: #8f96a3;
-}
-
-.badge{
-  padding: 6px 10px;
-  border: 1px solid #343842;
-  border-radius: 6px;
-  color: aqua;
-  background: #202332;
-  font-size: 12px;
-}
-
 .chat{
   flex: 1;
   min-height: 0;
@@ -209,79 +122,5 @@ onMounted(async ()=>{
   color: #292c34;
   font-size: 13px;
 }
-
-.messages{
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 24px;
-}
-
-.empty{
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-align: center;
-  color: #858c98;
-}
-
-.message{
-  align-self: flex-end;
-  max-width: 70%;
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #8f96a3;
-
-  .message p{
-    margin: 0;
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-  }
-
-  .message footer{
-    
-  }
-
-  .composer{
-    display: flex;
-    gap: 10px;
-    padding: 15px 20px;
-    border-top: 1px solid #202332;
-    background: #f2f3f5;
-  }
-
-  .composer input{
-    flex: 1;
-    min-width: 0;
-    padding: 11px 13px;
-    border: 1px solid #292c34;
-    border-radius: 7px;
-    outline: none;
-    color: #292c34;
-    background: #858c98;
-    font: inherit;
-  }
-
-  .composer input:focus{
-    border-color: #292c34;
-  }
-
-  .composer button{
-    padding: 0 18px;
-    border: none;
-    border-radius: 7px;
-    cursor: pointer;
-    color: white;
-    background: antiquewhite;
-    font: inherit;
-    font-size: 1px;
-  }
-}
-
-
 
 </style>

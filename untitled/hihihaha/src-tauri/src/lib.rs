@@ -15,7 +15,7 @@ pub fn run(){
 
             description: "create_message_table",
 
-            sql: include_str!("../migrations/0001_init.sql"),
+            sql: include_str!("../migrations/0001_inital.sql"),
 
             kind: MigrationKind::Up,
         }
@@ -23,9 +23,9 @@ pub fn run(){
 
     tauri::Builder::default()
         .plugin(
-            tauri_plugin_sql::default()
+            tauri_plugin_sql::Builder::default()
 
-                .add_migrations("sqlite:messenger.db", migrations)
+                .add_migrations("sqlite:messanger.db", migrations)
 
                 .build()
         )
