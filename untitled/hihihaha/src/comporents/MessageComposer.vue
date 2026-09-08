@@ -40,10 +40,10 @@ function submitMessage(){
 
 .composer{
   display: flex;
-  position: sticky;
   gap: 10px;
   padding: 15px 20px;
   border-top: 1px solid #202332;
+  flex-shrink: 0;
 }
 
 .composer input{

@@ -1,41 +1,94 @@
 <script setup lang="ts">
+import {
+  nextTick,           // Позволяет дождаться момента когда Vue обновит HTML
+    onMounted,
+    useTemplateRef,   // дает возможность получить сылку на html-элемент из teamplate
+    watch,            // позволяет следить за изменениями выбраных даных
+} from "vue";
+
 import MessageBubble from "./MessageBubble.vue";
 
 import type {Message} from "../types/message.ts";
 
-defineProps<{
+const props = defineProps<{
   messages: Message[];
 }>();
+
+const bottomAnchor = useTemplateRef<HTMLDivElement>("bottom-anchor")
+
+async function scrollToBottom(){
+  /* Нужно дождаться обновления DOM */
+  await nextTick();
+
+  bottomAnchor.value?.scrollIntoView({
+    behavior: "smooth",
+
+    block: "end",
+  });
+
+}
+
+function getMessageCount(){
+  return props.messages.length;
+}
+
+watch(
+    getMessageCount,
+    scrollToBottom,
+);
+
+onMounted(scrollToBottom);
+
 </script>
 
 <template>
   <div class="messages">
     <!-- Данный див будет отображаться когда сообщений нет -->
-    <div
-        v-if="messages.length === 0"
-        class="empty"
-    >
-      <strong> Здесь пока пусто </strong>
-      <span> Напишите первое сообщение </span>
-    </div>
+    <div class="messages-inner">
+      <div
+          v-if="messages.length === 0"
+          class="empty"
+      >
+        <strong> Здесь пока пусто </strong>
+        <span> Напишите первое сообщение </span>
+      </div>
+
+
     <!-- Vue создает article ля каждого сообщения из базы -->
     <MessageBubble
     v-for="message in messages"
     :key="message.id"
     :message="message"
-    />
+     />
+      <div
+      ref="bottom-anchor"
+      class="bottom-anchor"
+      aria-hidden="true"
+      >
+
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 
+.bottom-anchor {
+  height: 1px;
+  flex-shrink: 0;
+}
 .messages{
   flex: 1;
   overflow-y: auto;
+  padding: 24px;
+}
+
+.messages-inner{
+  min-height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 10px;
-  padding: 24px;
 }
 
 .empty{

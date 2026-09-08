@@ -94,10 +94,12 @@ async  function sendMessage(body: string) {
   background: #111318;
 }
 
-.app{
-  min-height: 100vh;
+.App{
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  /* Запрещает всему app прокручиваться */
+  overflow: hidden;
 }
 
 .chat{
@@ -105,6 +107,7 @@ async  function sendMessage(body: string) {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Потому что chat целиком не должен прокручиваться  */
 }
 
 .chat-info{
