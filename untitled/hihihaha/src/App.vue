@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import type { User } from "./types/user";
+
 import type {Message} from "./types/message.ts";
 // Импорт 2 функций из vue
 // onMounted - запускает код после появления компонентов
@@ -12,6 +14,33 @@ import AppHeader from "./comporents/AppHeader.vue";
 import MessageComposer from "./comporents/MessageComposer.vue";
 
 import MessageList from "./comporents/MessageList.vue";
+
+const oleg: User = {
+  id:1,
+  name: "Олег",
+};
+
+const kirill: User = {
+  id:2,
+  name: "Кирилл",
+};
+
+const fekla: User = {
+  id:3,
+  name: "Ф Свекла",
+};
+
+const users: User[] =[
+  oleg,
+  kirill,
+  fekla,
+];
+
+const currentUser = ref<User>(oleg);
+
+function selectUser(user: User){
+  currentUser.value = user;
+}
 
 const messages = ref<Message[]>([]);
 
@@ -28,42 +57,55 @@ async  function loadMessages(){
 }
 
 async  function sendMessage(body: string) {
-    if (!db) return;
+  if (!db) return;
 
-    await db.execute(
-        "INSERT INTO messages (author, body) VALUES ($1, $2)",
-        ["Вы", body]
-    )
+  await db.execute(
+      "INSERT INTO messages (author, body) VALUES ($1, $2)",
+      [
+        currentUser.value.name,
+        body,
+      ]
+  )
   await loadMessages()
 }
-  // VUE выполнит код ниже когда интерфейс программы загрузится
-  onMounted(async ()=> {
-    try {
-      // Открываем бд
-      db = await Database.load("sqlite:messanger.db");
+// VUE выполнит код ниже когда интерфейс программы загрузится
+onMounted(async ()=> {
+  try {
+    // Открываем бд
+    db = await Database.load("sqlite:messanger.db");
 
-      await loadMessages();
+    await loadMessages();
 
-      status.value = "История сохраняется локально";
-    } catch (error) {
-      console.error(error);
-      status.value = "Ошибка подключения к базе";
-    }
-  });
+    status.value = "История сохраняется локально";
+  } catch (error) {
+    console.error(error);
+    status.value = "Ошибка подключения к базе";
+  }
+});
 
 </script>
 
 <template>
   <main class="App">
-  <AppHeader :status="status"/>
+    <AppHeader
+        :status="status"
+        :users="users"
+        :current-user="currentUser"
+        @select="selectUser"
+    />
     <section class="chat">
       <div class="chat-info">
         <h2>Первый чат</h2>
 
-        <p>ервый локальной мессенджер</p>
+        <p>Первый локальной мессенджер</p>
       </div>
-      <MessageList :messages="messages"/>
-      <MessageComposer @send="sendMessage"/>
+      <MessageList
+          :messages="messages"
+          :current-user-name="currentUser.name"
+      />
+      <div class="composer-wrapper">
+        <MessageComposer @send="sendMessage"/>
+      </div>
     </section>
   </main>
 </template>
@@ -82,12 +124,12 @@ async  function sendMessage(body: string) {
   margin: 0;
 
   font-family:
-  Inter,
-  system-ui,
-  -apple-system,
-  BlinkMacSystemFontm,
-  "Segoe UI",
-  sans-serif;
+      Inter,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFontm,
+      "Segoe UI",
+      sans-serif;
 
   color: #f2f3f5;
 

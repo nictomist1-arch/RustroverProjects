@@ -4,6 +4,7 @@ import type { Message } from  "../types/message.ts";
 
 defineProps<{
   message: Message;
+  isOwn: boolean;
 
 }>();
 </script>
@@ -11,6 +12,10 @@ defineProps<{
 <template>
   <article
       class="message"
+      :class="{
+        'message--own': isOwn,
+        'message--other': !isOwn,
+      }"
   >
     <p>
       {{message.body}}
@@ -29,12 +34,20 @@ defineProps<{
 <style scoped>
 
 .message {
-  align-self: flex-end;
   max-width: 70%;
   margin: 0;
   padding: 10px 12px;
   border-radius: 10px;
-  background: #8f96a3;
+}
+
+.message--own{
+  align-self: flex-end;
+  background: #17191f;
+}
+
+.message--other{
+  align-self: flex-start;
+  background: #343842;
 }
 
 .message p{
@@ -48,7 +61,7 @@ defineProps<{
   justify-content: flex-end;
   gap: 5px;
   margin-top: 6px;
-  color: #ccd8f7;
+  color: #b5bbc7;
   font-size: 10px;
 }
 
