@@ -15,6 +15,10 @@ const props = defineProps<{
   currentUserName: string;
 }>();
 
+const emit = defineEmits<{
+  react: [messageId: number, emoji: string];
+}>();
+
 const bottomAnchor = useTemplateRef<HTMLDivElement>("bottom-anchor")
 
 async function scrollToBottom(){
@@ -61,6 +65,7 @@ onMounted(scrollToBottom);
     :key="message.id"
     :message="message"
     :is-own="message.author === currentUserName"
+    @react="(messageId, emoji) => emit('react', messageId, emoji)"
      />
       <div
       ref="bottom-anchor"

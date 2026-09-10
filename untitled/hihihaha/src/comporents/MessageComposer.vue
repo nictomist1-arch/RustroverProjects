@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, ref, useTemplateRef } from "vue";
 
 const emit = defineEmits<{
   send: [body: string];
@@ -7,9 +7,29 @@ const emit = defineEmits<{
 
 const draft = ref("");
 const isEmojiPanelOpen = ref(false);
+const cursorPos = ref(0);
+const inputEl = useTemplateRef<HTMLInputElement>("draft-input");
+
+function rememberCursor() {
+  const el = inputEl.value;
+  if (!el) return;
+  cursorPos.value = el.selectionStart ?? draft.value.length;
+}
 
 function addEmoji(emoji: string) {
-  draft.value += emoji;
+  const pos = cursorPos.value;
+  const before = draft.value.slice(0, pos);
+  const after = draft.value.slice(pos);
+
+  draft.value = before + emoji + after;
+  cursorPos.value = pos + emoji.length;
+
+  nextTick(() => {
+    const el = inputEl.value;
+    if (!el) return;
+    el.focus();
+    el.setSelectionRange(cursorPos.value, cursorPos.value);
+  });
 }
 
 function submitMessage() {
@@ -20,24 +40,30 @@ function submitMessage() {
   emit("send", body);
 
   draft.value = "";
+  cursorPos.value = 0;
 }
 
 function toggleEmojiPanel() {
+  rememberCursor();
   isEmojiPanelOpen.value = !isEmojiPanelOpen.value;
 }
-
 </script>
 
 <template>
   <form class="composer" @submit.prevent="submitMessage()">
     <div class="input-group">
       <input
+          ref="draft-input"
           v-model="draft"
           type="text"
           placeholder="Ну пиши уже че нить"
           autocapitalize="off"
+          @click="rememberCursor"
+          @keyup="rememberCursor"
+          @select="rememberCursor"
+          @blur="rememberCursor"
       />
-      <button type="button" class="emoji-toggle-btn" @click="toggleEmojiPanel">
+      <button type="button" class="emoji-toggle-btn" @mousedown.prevent @click="toggleEmojiPanel">
         😊
       </button>
       <button type="submit">Отправить</button>
@@ -45,16 +71,16 @@ function toggleEmojiPanel() {
 
     <div v-if="isEmojiPanelOpen" class="emoji-panel">
       <div class="emoji-bar">
-        <button type="button" @click="addEmoji('😱')" class="emoji-btn">😱</button>
-        <button type="button" @click="addEmoji('😂')" class="emoji-btn">😂</button>
-        <button type="button" @click="addEmoji('❤️')" class="emoji-btn">❤️</button>
-        <button type="button" @click="addEmoji('🔥')" class="emoji-btn">🔥</button>
-        <button type="button" @click="addEmoji('👍')" class="emoji-btn">👍</button>
-        <button type="button" @click="addEmoji('🎉')" class="emoji-btn">🎉</button>
-        <button type="button" @click="addEmoji('🤔')" class="emoji-btn">🤔</button>
-        <button type="button" @click="addEmoji('💪')" class="emoji-btn">💪</button>
-        <button type="button" @click="addEmoji('👋')" class="emoji-btn">👋</button>
-        <button type="button" @click="addEmoji('😍')" class="emoji-btn">😍</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('😱')" class="emoji-btn">😱</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('😂')" class="emoji-btn">😂</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('❤️')" class="emoji-btn">❤️</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('🔥')" class="emoji-btn">🔥</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('👍')" class="emoji-btn">👍</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('🎉')" class="emoji-btn">🎉</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('🤔')" class="emoji-btn">🤔</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('💪')" class="emoji-btn">💪</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('👋')" class="emoji-btn">👋</button>
+        <button type="button" @mousedown.prevent @click="addEmoji('😍')" class="emoji-btn">😍</button>
       </div>
     </div>
   </form>
@@ -99,15 +125,22 @@ function toggleEmojiPanel() {
   font: inherit;
 }
 
+.emoji-toggle-btn {
+  padding: 0 14px;
+  flex-shrink: 0;
+  background: #292c34;
+}
+
 .emoji-panel {
   position: absolute;
-  bottom: 80px;
-  left: 1500px;
+  bottom: calc(100% + 8px);
   right: 20px;
+  left: auto;
   background: #1e2026;
   border: 1px solid #292c34;
   border-radius: 10px;
   padding: 12px 14px;
+  z-index: 10;
 }
 
 .emoji-bar {

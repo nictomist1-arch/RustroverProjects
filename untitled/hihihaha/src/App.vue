@@ -2,7 +2,7 @@
 
 import type { User } from "./types/user";
 
-import type {Message} from "./types/message.ts";
+import type {Message, Reaction, ReactionGroup} from "./types/message.ts";
 // Импорт 2 функций из vue
 // onMounted - запускает код после появления компонентов
 import { onMounted, ref } from "vue";
@@ -38,8 +38,9 @@ const users: User[] =[
 
 const currentUser = ref<User>(oleg);
 
-function selectUser(user: User){
+async function selectUser(user: User){
   currentUser.value = user;
+  await loadMessages();
 }
 
 const messages = ref<Message[]>([]);
@@ -48,15 +49,52 @@ const status = ref("Подключение...")
 
 let db: Database | null = null;
 
-async  function loadMessages(){
-  if(!db) return;
+function groupReactions(
+    rows: Reaction[],
+    messageId: number,
+    userName: string,
+): ReactionGroup[] {
+  const byEmoji = new Map<string, ReactionGroup>();
 
-  messages.value = await db.select<Message[]>(
-      "SELECT id, author, body, created_at FROM messages ORDER BY id ASC",
-  );
+  for (const row of rows) {
+    if (row.message_id !== messageId) continue;
+
+    const existing = byEmoji.get(row.emoji);
+    if (existing) {
+      existing.count += 1;
+      if (row.author === userName) existing.reactedByMe = true;
+    } else {
+      byEmoji.set(row.emoji, {
+        emoji: row.emoji,
+        count: 1,
+        reactedByMe: row.author === userName,
+      });
+    }
+  }
+
+  return Array.from(byEmoji.values());
 }
 
-async  function sendMessage(body: string) {
+async function loadMessages(){
+  if(!db) return;
+
+  const rows = await db.select<Omit<Message, "reactions">[]>(
+      "SELECT id, author, body, created_at FROM messages ORDER BY id ASC",
+  );
+
+  const reactionRows = await db.select<Reaction[]>(
+      "SELECT id, message_id, author, emoji FROM reactions ORDER BY id ASC",
+  );
+
+  const userName = currentUser.value.name;
+
+  messages.value = rows.map((row) => ({
+    ...row,
+    reactions: groupReactions(reactionRows, row.id, userName),
+  }));
+}
+
+async function sendMessage(body: string) {
   if (!db) return;
 
   await db.execute(
@@ -68,6 +106,29 @@ async  function sendMessage(body: string) {
   )
   await loadMessages()
 }
+
+async function toggleReaction(messageId: number, emoji: string) {
+  if (!db) return;
+
+  const author = currentUser.value.name;
+
+  const existing = await db.select<Reaction[]>(
+      "SELECT id, message_id, author, emoji FROM reactions WHERE message_id = $1 AND author = $2 AND emoji = $3",
+      [messageId, author, emoji],
+  );
+
+  if (existing.length > 0) {
+    await db.execute("DELETE FROM reactions WHERE id = $1", [existing[0].id]);
+  } else {
+    await db.execute(
+        "INSERT INTO reactions (message_id, author, emoji) VALUES ($1, $2, $3)",
+        [messageId, author, emoji],
+    );
+  }
+
+  await loadMessages();
+}
+
 // VUE выполнит код ниже когда интерфейс программы загрузится
 onMounted(async ()=> {
   try {
@@ -102,6 +163,7 @@ onMounted(async ()=> {
       <MessageList
           :messages="messages"
           :current-user-name="currentUser.name"
+          @react="toggleReaction"
       />
       <div class="composer-wrapper">
         <MessageComposer @send="sendMessage"/>

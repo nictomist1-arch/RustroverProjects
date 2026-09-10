@@ -18,7 +18,16 @@ pub fn run(){
             sql: include_str!("../migrations/0001_inital.sql"),
 
             kind: MigrationKind::Up,
-        }
+        },
+        Migration{
+            version:2,
+
+            description: "create_reactions_table",
+
+            sql: include_str!("../migrations/0002_reactions.sql"),
+
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
