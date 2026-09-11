@@ -8,16 +8,22 @@ import {
 
 import MessageBubble from "./MessageBubble.vue";
 
-import type {Message} from "../types/message.ts";
+import type { Message } from "../types/message.ts";
+import type { User } from "../types/user.ts";
 
 const props = defineProps<{
   messages: Message[];
   currentUserName: string;
+  users: User[];
 }>();
 
 const emit = defineEmits<{
   react: [messageId: number, emoji: string];
 }>();
+
+function avatarFor(author: string): string {
+  return props.users.find((user) => user.name === author)?.avatar ?? "";
+}
 
 const bottomAnchor = useTemplateRef<HTMLDivElement>("bottom-anchor")
 
@@ -48,7 +54,6 @@ onMounted(scrollToBottom);
 
 <template>
   <div class="messages">
-    <!-- Данный див будет отображаться когда сообщений нет -->
     <div class="messages-inner">
       <div
           v-if="messages.length === 0"
@@ -58,13 +63,12 @@ onMounted(scrollToBottom);
         <span> Напишите первое сообщение </span>
       </div>
 
-
-    <!-- Vue создает article ля каждого сообщения из базы -->
     <MessageBubble
     v-for="message in messages"
     :key="message.id"
     :message="message"
     :is-own="message.author === currentUserName"
+    :avatar="avatarFor(message.author)"
     @react="(messageId, emoji) => emit('react', messageId, emoji)"
      />
       <div

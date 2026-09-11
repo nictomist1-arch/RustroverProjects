@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { nextTick, ref, useTemplateRef } from "vue";
+import { open } from "@tauri-apps/plugin-dialog";
+import { readFile } from "@tauri-apps/plugin-fs";
+import EmojiPanel from "../emoji/EmojiPanel.vue";
 
 const emit = defineEmits<{
   send: [body: string];
+  sendSticker: [src: string];
+  selectEmoji: [emoji: string];
 }>();
 
 const draft = ref("");
@@ -17,11 +22,10 @@ function rememberCursor() {
 }
 
 function addEmoji(emoji: string) {
-  const pos = cursorPos.value;
-  const before = draft.value.slice(0, pos);
-  const after = draft.value.slice(pos);
+  emit("selectEmoji", emoji);
 
-  draft.value = before + emoji + after;
+  const pos = cursorPos.value;
+  draft.value = draft.value.slice(0, pos) + emoji + draft.value.slice(pos);
   cursorPos.value = pos + emoji.length;
 
   nextTick(() => {
@@ -32,13 +36,16 @@ function addEmoji(emoji: string) {
   });
 }
 
+function sendSticker(src: string) {
+  emit("sendSticker", src);
+  isEmojiPanelOpen.value = false;
+}
+
 function submitMessage() {
   const body = draft.value.trim();
-
   if (!body) return;
 
   emit("send", body);
-
   draft.value = "";
   cursorPos.value = 0;
 }
@@ -47,11 +54,45 @@ function toggleEmojiPanel() {
   rememberCursor();
   isEmojiPanelOpen.value = !isEmojiPanelOpen.value;
 }
+
+async function openImagePicker() {
+  const path = await open({
+    multiple: false,
+    filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg", "webp"] }],
+  });
+
+  if (typeof path !== "string") return;
+
+  const bytes = await readFile(path);
+  const type = path.endsWith(".png")
+    ? "image/png"
+    : path.endsWith(".webp")
+      ? "image/webp"
+      : "image/jpeg";
+  const blob = new Blob([bytes], { type });
+
+  const src = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.readAsDataURL(blob);
+  });
+
+  emit("sendSticker", src);
+}
 </script>
 
 <template>
   <form class="composer" @submit.prevent="submitMessage()">
     <div class="input-group">
+      <button
+          type="button"
+          class="icon-btn"
+          title="Прикрепить файл"
+          @mousedown.prevent
+          @click="openImagePicker"
+      >
+        📎
+      </button>
       <input
           ref="draft-input"
           v-model="draft"
@@ -63,26 +104,26 @@ function toggleEmojiPanel() {
           @select="rememberCursor"
           @blur="rememberCursor"
       />
-      <button type="button" class="emoji-toggle-btn" @mousedown.prevent @click="toggleEmojiPanel">
+      <button
+          type="button"
+          class="icon-btn"
+          title="Эмодзи и стикеры"
+          @mousedown.prevent
+          @click="toggleEmojiPanel"
+      >
         😊
       </button>
       <button type="submit">Отправить</button>
     </div>
 
-    <div v-if="isEmojiPanelOpen" class="emoji-panel">
-      <div class="emoji-bar">
-        <button type="button" @mousedown.prevent @click="addEmoji('😱')" class="emoji-btn">😱</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('😂')" class="emoji-btn">😂</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('❤️')" class="emoji-btn">❤️</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('🔥')" class="emoji-btn">🔥</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('👍')" class="emoji-btn">👍</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('🎉')" class="emoji-btn">🎉</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('🤔')" class="emoji-btn">🤔</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('💪')" class="emoji-btn">💪</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('👋')" class="emoji-btn">👋</button>
-        <button type="button" @mousedown.prevent @click="addEmoji('😍')" class="emoji-btn">😍</button>
-      </div>
-    </div>
+    <EmojiPanel
+        v-if="isEmojiPanelOpen"
+        class="composer-emoji-panel"
+        prevent-mouse-down
+        show-stickers
+        @select="addEmoji"
+        @select-sticker="sendSticker"
+    />
   </form>
 </template>
 
@@ -103,7 +144,7 @@ function toggleEmojiPanel() {
   gap: 10px;
 }
 
-.composer input {
+.composer input[type="text"] {
   flex: 1;
   min-width: 0;
   padding: 11px 13px;
@@ -125,41 +166,22 @@ function toggleEmojiPanel() {
   font: inherit;
 }
 
-.emoji-toggle-btn {
+.icon-btn {
   padding: 0 14px;
   flex-shrink: 0;
   background: #292c34;
+  font-size: 18px;
+  line-height: 1;
 }
 
-.emoji-panel {
+.icon-btn:hover {
+  background: #343842;
+}
+
+.composer-emoji-panel {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 20px;
   left: auto;
-  background: #1e2026;
-  border: 1px solid #292c34;
-  border-radius: 10px;
-  padding: 12px 14px;
-  z-index: 10;
-}
-
-.emoji-bar {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.emoji-btn {
-  padding: 4px 8px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background: transparent;
-  font-size: 18px;
-  transition: background 0.15s;
-}
-
-.emoji-btn:hover {
-  background: #292c34;
 }
 </style>

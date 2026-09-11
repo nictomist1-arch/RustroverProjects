@@ -6,12 +6,12 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 
 // Главная функция для запуска приложения
-pub fn run(){
+pub fn run() {
     // Создание списка миграций
     let migrations = vec![
         // Описание первой миграции
-        Migration{
-            version:1,
+        Migration {
+            version: 1,
 
             description: "create_message_table",
 
@@ -19,8 +19,8 @@ pub fn run(){
 
             kind: MigrationKind::Up,
         },
-        Migration{
-            version:2,
+        Migration {
+            version: 2,
 
             description: "create_reactions_table",
 
@@ -28,19 +28,27 @@ pub fn run(){
 
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+
+            description: "add_sticker_column",
+
+            sql: include_str!("../migrations/0003_stickers.sql"),
+
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
-
                 .add_migrations("sqlite:messanger.db", migrations)
-
-                .build()
+                .build(),
         )
-    // Создаем plugin opener
+        // Создаем plugin opener
         .plugin(tauri_plugin_opener::init())
-
         .run(tauri::generate_context!())
         .expect("Ошибка при сборке приложения");
 }

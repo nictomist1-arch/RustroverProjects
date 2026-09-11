@@ -16,5 +16,6 @@ export interface Message {
     author: string;
     body: string;
     created_at: string;
+    sticker: string | null;
     reactions: ReactionGroup[];
 }

@@ -15,22 +15,29 @@ import MessageComposer from "./comporents/MessageComposer.vue";
 
 import MessageList from "./comporents/MessageList.vue";
 
+import olegAvatar from "./assets/avatars/oleg.png";
+import kirillAvatar from "./assets/avatars/kirill.png";
+import feklaAvatar from "./assets/avatars/fekla.png";
+
 const oleg: User = {
-  id:1,
+  id: 1,
   name: "Олег",
+  avatar: olegAvatar,
 };
 
 const kirill: User = {
-  id:2,
+  id: 2,
   name: "Кирилл",
+  avatar: kirillAvatar,
 };
 
 const fekla: User = {
-  id:3,
+  id: 3,
   name: "Ф Свекла",
+  avatar: feklaAvatar,
 };
 
-const users: User[] =[
+const users: User[] = [
   oleg,
   kirill,
   fekla,
@@ -79,7 +86,7 @@ async function loadMessages(){
   if(!db) return;
 
   const rows = await db.select<Omit<Message, "reactions">[]>(
-      "SELECT id, author, body, created_at FROM messages ORDER BY id ASC",
+      "SELECT id, author, body, created_at, sticker FROM messages ORDER BY id ASC",
   );
 
   const reactionRows = await db.select<Reaction[]>(
@@ -98,13 +105,28 @@ async function sendMessage(body: string) {
   if (!db) return;
 
   await db.execute(
-      "INSERT INTO messages (author, body) VALUES ($1, $2)",
+      "INSERT INTO messages (author, body, sticker) VALUES ($1, $2, $3)",
       [
         currentUser.value.name,
         body,
+        null,
       ]
   )
   await loadMessages()
+}
+
+async function sendSticker(src: string) {
+  if (!db) return;
+
+  await db.execute(
+      "INSERT INTO messages (author, body, sticker) VALUES ($1, $2, $3)",
+      [
+        currentUser.value.name,
+        "",
+        src,
+      ],
+  );
+  await loadMessages();
 }
 
 async function toggleReaction(messageId: number, emoji: string) {
@@ -163,10 +185,14 @@ onMounted(async ()=> {
       <MessageList
           :messages="messages"
           :current-user-name="currentUser.name"
+          :users="users"
           @react="toggleReaction"
       />
       <div class="composer-wrapper">
-        <MessageComposer @send="sendMessage"/>
+        <MessageComposer
+            @send="sendMessage"
+            @send-sticker="sendSticker"
+        />
       </div>
     </section>
   </main>

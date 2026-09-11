@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { Message } from "../types/message.ts";
 import { computed, onMounted, onUnmounted, ref } from "vue";
-
-const REACTION_EMOJIS = ["😱", "😂", "❤️", "🔥", "👍", "🎉", "🤔", "💪", "👋", "😍"];
+import EmojiPanel from "../emoji/EmojiPanel.vue";
 
 const props = defineProps<{
   message: Message;
   isOwn: boolean;
+  avatar: string;
 }>();
 
 const emit = defineEmits<{
@@ -17,6 +17,8 @@ const isPickerOpen = ref(false);
 const rootEl = ref<HTMLElement | null>(null);
 
 const reactionGroups = computed(() => props.message.reactions ?? []);
+const hasBody = computed(() => Boolean(props.message.body?.trim()));
+const hasSticker = computed(() => Boolean(props.message.sticker));
 
 function togglePicker() {
   isPickerOpen.value = !isPickerOpen.value;
@@ -56,78 +58,119 @@ onUnmounted(() => {
         'message--other': !isOwn,
       }"
   >
-    <p>
-      {{ message.body }}
-    </p>
+    <img
+        v-if="avatar"
+        :src="avatar"
+        :alt="message.author"
+        class="message-avatar"
+    />
 
-    <div v-if="reactionGroups.length > 0" class="reactions">
-      <button
-          v-for="group in reactionGroups"
-          :key="group.emoji"
-          type="button"
-          class="reaction-chip"
-          :class="{ 'reaction-chip--mine': group.reactedByMe }"
-          :title="`${group.count}`"
-          @click="onReactionClick(group.emoji)"
-      >
-        <span>{{ group.emoji }}</span>
-        <span class="reaction-count">{{ group.count }}</span>
-      </button>
-    </div>
+    <div class="message-body">
+      <p v-if="hasBody">
+        {{ message.body }}
+      </p>
 
-    <div class="message-actions">
-      <button
-          type="button"
-          class="react-btn"
-          title="Реакция"
-          @click.stop="togglePicker"
-      >
-        😊
-      </button>
+      <img
+          v-if="hasSticker"
+          :src="message.sticker!"
+          alt="Стикер"
+          class="message-sticker"
+      />
 
-      <div v-if="isPickerOpen" class="reaction-picker" @click.stop>
+      <div v-if="reactionGroups.length > 0" class="reactions">
         <button
-            v-for="emoji in REACTION_EMOJIS"
-            :key="emoji"
+            v-for="group in reactionGroups"
+            :key="group.emoji"
             type="button"
-            class="emoji-btn"
-            @click="pickEmoji(emoji)"
+            class="reaction-chip"
+            :class="{ 'reaction-chip--mine': group.reactedByMe }"
+            :title="`${group.count}`"
+            @click="onReactionClick(group.emoji)"
         >
-          {{ emoji }}
+          <span>{{ group.emoji }}</span>
+          <span class="reaction-count">{{ group.count }}</span>
         </button>
       </div>
-    </div>
 
-    <footer>
-      <span>{{ message.author }}</span>
-      <span>{{ message.created_at }}</span>
-    </footer>
+      <div class="message-actions">
+        <button
+            type="button"
+            class="react-btn"
+            title="Реакция"
+            @click.stop="togglePicker"
+        >
+          😊
+        </button>
+
+        <EmojiPanel
+            v-if="isPickerOpen"
+            class="reaction-emoji-panel"
+            :show-stickers="false"
+            @select="pickEmoji"
+        />
+      </div>
+
+      <footer>
+        <span>{{ message.author }}</span>
+        <span>{{ message.created_at }}</span>
+      </footer>
+    </div>
   </article>
 </template>
 
 <style scoped>
 .message {
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
   max-width: 70%;
   margin: 0;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.message-body {
+  min-width: 0;
   padding: 10px 12px;
   border-radius: 10px;
 }
 
 .message--own {
   align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message--own .message-body {
   background: #17191f;
 }
 
 .message--other {
   align-self: flex-start;
+}
+
+.message--other .message-body {
   background: #343842;
 }
 
-.message p {
+.message-body p {
   margin: 0;
   line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.message-sticker {
+  display: block;
+  max-width: 160px;
+  max-height: 160px;
+  margin-top: 4px;
+  object-fit: contain;
 }
 
 .message footer {
@@ -195,37 +238,15 @@ onUnmounted(() => {
   background: #292c34;
 }
 
-.reaction-picker {
+.reaction-emoji-panel {
   position: absolute;
   bottom: calc(100% + 6px);
   left: 0;
   z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  max-width: 220px;
-  padding: 8px;
-  border: 1px solid #292c34;
-  border-radius: 10px;
-  background: #1e2026;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-.message--own .reaction-picker {
+.message--own .reaction-emoji-panel {
   left: auto;
   right: 0;
-}
-
-.emoji-btn {
-  padding: 4px 6px;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-.emoji-btn:hover {
-  background: #292c34;
 }
 </style>
