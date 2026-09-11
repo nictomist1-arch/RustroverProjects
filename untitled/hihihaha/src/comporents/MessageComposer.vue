@@ -41,11 +41,35 @@ function sendSticker(src: string) {
   isEmojiPanelOpen.value = false;
 }
 
+function isGifUrl(text: string): boolean {
+  try {
+    const url = new URL(text);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+
+    const path = url.pathname.toLowerCase();
+    const host = url.hostname.toLowerCase();
+
+    return (
+      path.endsWith(".gif") ||
+      host.includes("giphy.com") ||
+      host.includes("tenor.com") ||
+      host.includes("media.tenor")
+    );
+  } catch {
+    return false;
+  }
+}
+
 function submitMessage() {
   const body = draft.value.trim();
   if (!body) return;
 
-  emit("send", body);
+  if (isGifUrl(body)) {
+    emit("sendSticker", body);
+  } else {
+    emit("send", body);
+  }
+
   draft.value = "";
   cursorPos.value = 0;
 }
@@ -56,19 +80,28 @@ function toggleEmojiPanel() {
 }
 
 async function openImagePicker() {
-  const path = await open({
+  // open — открывает системный выбор файла
+  const file = await open({
     multiple: false,
-    filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg", "webp"] }],
+    filters: [
+      {
+        name: "Images",
+        extensions: ["png", "jpg", "jpeg", "webp", "gif"],
+      },
+    ],
   });
 
-  if (typeof path !== "string") return;
+  if (typeof file !== "string") return;
 
-  const bytes = await readFile(path);
-  const type = path.endsWith(".png")
-    ? "image/png"
-    : path.endsWith(".webp")
-      ? "image/webp"
-      : "image/jpeg";
+  const bytes = await readFile(file);
+  const lower = file.toLowerCase();
+  const type = lower.endsWith(".gif")
+    ? "image/gif"
+    : lower.endsWith(".png")
+      ? "image/png"
+      : lower.endsWith(".webp")
+        ? "image/webp"
+        : "image/jpeg";
   const blob = new Blob([bytes], { type });
 
   const src = await new Promise<string>((resolve) => {
@@ -87,7 +120,7 @@ async function openImagePicker() {
       <button
           type="button"
           class="icon-btn"
-          title="Прикрепить файл"
+          title="Прикрепить картинку или GIF"
           @mousedown.prevent
           @click="openImagePicker"
       >
@@ -97,7 +130,7 @@ async function openImagePicker() {
           ref="draft-input"
           v-model="draft"
           type="text"
-          placeholder="Ну пиши уже че нить"
+          placeholder="Текст или ссылка на GIF"
           autocapitalize="off"
           @click="rememberCursor"
           @keyup="rememberCursor"
