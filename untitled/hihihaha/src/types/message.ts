@@ -17,5 +17,7 @@ export interface Message {
     body: string;
     created_at: string;
     sticker: string | null;
+    type?: "text" | "image";
+    attachment?: string | null;
     reactions: ReactionGroup[];
 }

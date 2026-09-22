@@ -15,6 +15,8 @@ import MessageComposer from "./comporents/MessageComposer.vue";
 
 import MessageList from "./comporents/MessageList.vue";
 
+import { getImagePath, isImageMessage } from "./utils/imageMessage.ts";
+
 import olegAvatar from "./assets/avatars/oleg.png";
 import kirillAvatar from "./assets/avatars/kirill.png";
 import feklaAvatar from "./assets/avatars/fekla.png";
@@ -86,7 +88,7 @@ async function loadMessages(){
   if(!db) return;
 
   const rows = await db.select<Omit<Message, "reactions">[]>(
-      "SELECT id, author, body, created_at, sticker FROM messages ORDER BY id ASC",
+      "SELECT id, author, body, created_at, sticker, type, attachment FROM messages ORDER BY id ASC",
   );
 
   const reactionRows = await db.select<Reaction[]>(
@@ -104,15 +106,21 @@ async function loadMessages(){
 async function sendMessage(body: string) {
   if (!db) return;
 
+  const isImage = isImageMessage(body);
+  const attachment = isImage ? getImagePath(body) : null;
+  const messageType = isImage ? "image" : "text";
+
   await db.execute(
-      "INSERT INTO messages (author, body, sticker) VALUES ($1, $2, $3)",
+      "INSERT INTO messages (author, body, sticker, type, attachment) VALUES ($1, $2, $3, $4, $5)",
       [
         currentUser.value.name,
         body,
         null,
-      ]
-  )
-  await loadMessages()
+        messageType,
+        attachment,
+      ],
+  );
+  await loadMessages();
 }
 
 async function sendSticker(src: string) {

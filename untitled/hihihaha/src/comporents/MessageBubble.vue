@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { Message } from "../types/message.ts";
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import { convertFileSrc } from "@tauri-apps/api/core";
 import EmojiPanel from "../emoji/EmojiPanel.vue";
+import { getImagePath, isImageMessage } from "../utils/imageMessage.ts";
+import { getFileUrl } from "../types/file.ts";
 
 const props = defineProps<{
   message: Message;
@@ -17,8 +20,23 @@ const isPickerOpen = ref(false);
 const rootEl = ref<HTMLElement | null>(null);
 
 const reactionGroups = computed(() => props.message.reactions ?? []);
-const hasBody = computed(() => Boolean(props.message.body?.trim()));
+const hasBody = computed(() => {
+  const body = props.message.body?.trim();
+  if (!body) return false;
+  return !isImageMessage(body);
+});
 const hasSticker = computed(() => Boolean(props.message.sticker));
+
+const imageSrc = computed(() => {
+  const body = props.message.body ?? "";
+  if (isImageMessage(body)) {
+    return convertFileSrc(getImagePath(body));
+  }
+  if (props.message.attachment) {
+    return getFileUrl(props.message.attachment);
+  }
+  return null;
+});
 
 function togglePicker() {
   isPickerOpen.value = !isPickerOpen.value;
@@ -56,6 +74,7 @@ onUnmounted(() => {
       :class="{
         'message--own': isOwn,
         'message--other': !isOwn,
+        'message--image': !!imageSrc,
       }"
   >
     <img
@@ -69,6 +88,13 @@ onUnmounted(() => {
       <p v-if="hasBody">
         {{ message.body }}
       </p>
+
+      <img
+          v-if="imageSrc"
+          :src="imageSrc"
+          alt="Изображение"
+          class="message-image"
+      />
 
       <img
           v-if="hasSticker"
@@ -163,6 +189,22 @@ onUnmounted(() => {
   margin: 0;
   line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.message--image .message-body {
+  width: fit-content;
+  max-width: min(320px, 100%);
+  padding: 6px;
+}
+
+.message-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .message-sticker {

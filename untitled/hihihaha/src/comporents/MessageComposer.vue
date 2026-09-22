@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { nextTick, ref, useTemplateRef } from "vue";
 import { open } from "@tauri-apps/plugin-dialog";
-import { readFile } from "@tauri-apps/plugin-fs";
+import { invoke } from "@tauri-apps/api/core";
 import EmojiPanel from "../emoji/EmojiPanel.vue";
+import { fileImage } from "../utils/imageMessage.ts";
 
 const emit = defineEmits<{
   send: [body: string];
@@ -80,7 +81,8 @@ function toggleEmojiPanel() {
 }
 
 async function openImagePicker() {
-  // open — открывает системный выбор файла
+  rememberCursor();
+
   const file = await open({
     multiple: false,
     filters: [
@@ -91,26 +93,17 @@ async function openImagePicker() {
     ],
   });
 
-  if (typeof file !== "string") return;
+  if (!file || Array.isArray(file)) return;
 
-  const bytes = await readFile(file);
   const lower = file.toLowerCase();
-  const type = lower.endsWith(".gif")
-    ? "image/gif"
-    : lower.endsWith(".png")
-      ? "image/png"
-      : lower.endsWith(".webp")
-        ? "image/webp"
-        : "image/jpeg";
-  const blob = new Blob([bytes], { type });
+  const allowed = [".png", ".jpg", ".jpeg", ".webp", ".gif"];
+  if (!allowed.some((ext) => lower.endsWith(ext))) return;
 
-  const src = await new Promise<string>((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.readAsDataURL(blob);
+  const savedPath = await invoke<string>("save_attachment", {
+    source: file,
   });
 
-  emit("sendSticker", src);
+  emit("send", `${fileImage}${savedPath}`);
 }
 </script>
 
