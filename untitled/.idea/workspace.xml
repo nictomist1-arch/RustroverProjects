@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="31c42c78-e003-4677-8c8b-59684bafd32a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/untitled.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/.vscode/extensions.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/public/tauri.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/public/vite.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/Cargo.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/Cargo.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724186.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724202.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724228.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724247.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724329.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724340.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724470.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789724479.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/attachment/image_1789725077.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/build.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/capabilities/default.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/128x128.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/128x128@2x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/32x32.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square107x107Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square142x142Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square150x150Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square284x284Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square30x30Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square310x310Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square44x44Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square71x71Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/Square89x89Logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/StoreLogo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/icon.icns" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/icon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/icons/icon.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/migrations/0001_initial.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/migrations/0002_chats.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/migrations/0003_message_attachments.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/migrations/0004_users.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src-tauri/tauri.conf.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/App.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/assets/vue.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/components/AppHeader.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/components/ChatSidebar.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/components/MessageBubble.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/components/MessageComposer.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/components/MessageList.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/components/ProfilerEditor.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/components/UserSwitcher.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/types/chats.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/types/file.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/types/message.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/types/user.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/src/vite-env.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/tsconfig.node.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/encore-67-messanger/vite.config.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/attachment/image_1789723881.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/attachment/image_1789723901.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/attachment/image_1789723909.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="3JoVI3Sata7WsjpsvOHfCiOsjDV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "CidrDebugProfileConversion": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.rust.reset.selective.auto.import": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "67-messenger-stud",
+    "junie.onboarding.icon.badge.shown": "true",
+    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
+    "org.rust.first.attach.projects": "true",
+    "to.speed.mode.migration.done": "true"
+  }
+}]]></component>
+  <component name="RustProjectSettings">
+    <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="31c42c78-e003-4677-8c8b-59684bafd32a" name="Changes" comment="" />
+      <created>1790327327541</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1790327327541</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
