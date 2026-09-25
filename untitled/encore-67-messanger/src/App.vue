@@ -133,8 +133,8 @@ async function loadMessages(chatId: number){
     FROM messages
     INNER JOIN users
         ON users.id = messages.author_id
-    WHERE chat_id = $1
-    ORDER BY id ASC
+    WHERE messages.chat_id = $1
+    ORDER BY messages.id ASC
     `,
       [chatId],
   );
@@ -171,26 +171,31 @@ async function sendMessage(body: string){
 
   if(!currentUser.value) return;
 
-  await db.execute(
-    `
-       INSERT INTO messages (
-            chat_id,
-            author_id,
-            type,
+  try {
+    await db.execute(
+      `
+         INSERT INTO messages (
+              chat_id,
+              author_id,
+              type,
+              body,
+              attachment
+         )
+         VALUES ($1, $2, $3, $4, $5)
+      `,
+        [
+            activeChat.value.id,
+            currentUser.value.id,
+            "text",
             body,
-            attachment
-       )
-       VALUES ($1, $2, $3, $4, $5)
-    `,
-      [
-          activeChat.value.id,
-          currentUser.value.id,
-          "text",
-          body,
-          null,
-      ],
-  );
-  await loadMessages(activeChat.value.id)
+            null,
+        ],
+    );
+    await loadMessages(activeChat.value.id)
+  } catch (error) {
+    console.error(error);
+    status.value = "Не удалось отправить сообщение";
+  }
 }
 
 async function sendImage(path:string){
@@ -202,38 +207,43 @@ async function sendImage(path:string){
 
   if(!currentUser.value) return;
 
-  await db.execute(
-      `
-        INSERT INTO messages
-        (
-           chat_id,
-           author_id,
-           type,
-           body,
-           attachment
-        )
+  try {
+    await db.execute(
+        `
+          INSERT INTO messages
+          (
+             chat_id,
+             author_id,
+             type,
+             body,
+             attachment
+          )
 
-        VALUES
-        (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5
-        )
-      `,
-      [
-          activeChat.value.id,
-          currentUser.value.id,
-          "image",
-          null,
-          path,
-      ]
-  );
+          VALUES
+          (
+              $1,
+              $2,
+              $3,
+              $4,
+              $5
+          )
+        `,
+        [
+            activeChat.value.id,
+            currentUser.value.id,
+            "image",
+            null,
+            path,
+        ]
+    );
 
-  await loadMessages(
-      activeChat.value.id
-  )
+    await loadMessages(
+        activeChat.value.id
+    )
+  } catch (error) {
+    console.error(error);
+    status.value = "Не удалось отправить изображение";
+  }
 }
 
 // VUE выполнит код ниже, когда интерфейс программы уже загрузится
@@ -279,10 +289,10 @@ onMounted(async()=>{
       />
       <section class="chat">
         <template v-if="activeChat">
-          <ChatInfo
-            :title="activeChat.title"
-            :subtitle="activeChat.subtitle"
-          />
+          <div class="chat-info">
+            <h2>{{ activeChat.title }}</h2>
+            <p>{{ activeChat.subtitle }}</p>
+          </div>
           <MessageList
               :key="activeChat.id"
               :messages="messages"
@@ -291,6 +301,7 @@ onMounted(async()=>{
           <MessageComposer
               @send="sendMessage"
               @sendImage="sendImage"
+              @send-sticker="sendImage"
           />
         </template>
       </section>

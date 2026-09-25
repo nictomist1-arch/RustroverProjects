@@ -1,13 +1,28 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
 
 import { getFileUrl } from "../types/file.ts";
 
 import type { Message } from "../types/message.ts";
 
-defineProps<{
+import ImageLightbox from "./ImageLightbox.vue";
+
+const props = defineProps<{
   message: Message;
   isOwn: boolean;
 }>();
+
+const isLightboxOpen = ref(false);
+
+const imageSrc = computed(() => {
+  if (!props.message.attachment) return null;
+  return getFileUrl(props.message.attachment);
+});
+
+function openLightbox() {
+  if (!imageSrc.value) return;
+  isLightboxOpen.value = true;
+}
 </script>
 
 <template>
@@ -26,19 +41,22 @@ defineProps<{
       {{message.body}}
     </p>
 
-    <img
+    <button
         v-if="
           message.type === 'image'
           &&
-          message.attachment
+          imageSrc
         "
-        class="message-image"
-        :src="
-          getFileUrl(
-            message.attachment
-          )
-        "
-    />
+        type="button"
+        class="message-image-button"
+        @click="openLightbox"
+    >
+      <img
+          class="message-image"
+          :src="imageSrc"
+          alt=""
+      />
+    </button>
     <footer>
             <span>
               {{ message.author_name}}
@@ -51,11 +69,26 @@ defineProps<{
             </span>
     </footer>
   </article>
+
+  <ImageLightbox
+      v-if="isLightboxOpen && imageSrc"
+      :src="imageSrc"
+      @close="isLightboxOpen = false"
+  />
 </template>
 
 <style scoped>
 
+.message-image-button{
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+}
+
 .message-image{
+  display: block;
   max-width: 300px;
   max-height: 300px;
   border-radius: 12px;
